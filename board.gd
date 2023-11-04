@@ -9,6 +9,11 @@ var grid: Array = [
 	1,1,1,1,1,1,
 ]
 
+var dot_colors={
+	2:Color.RED,
+	3:Color.BLUE,
+}
+
 var selected=-1
 
 var cells: Array
@@ -30,32 +35,37 @@ func found_cell_idx(pt):
 	
 func _input(event):	
 	if Input.is_action_just_released("press"):
-		print("RELEASED")
 		selected=-1
-	if Input.is_action_pressed("press"):		
+		queue_redraw()
+	if Input.is_action_pressed("press"):
 		var i = found_cell_idx(event.position)
 		if i == -1:
 			selected=-1
+			queue_redraw()
 			return
-		print("PRESS",i," sel=",selected)
 		if selected==-1:
 			if grid[i]>1:
 				# There's a dot at this position, select it
 				selected=i
+				queue_redraw()
+				return
 		else:
-			if grid[i]==1:
+			if grid[i]==1 and selected!=i:
 				#swap position
 				grid[i]=grid[selected]
 				grid[selected]=1
 				selected=i
-	queue_redraw()							
+				queue_redraw()
+		
 	
+
 func _draw():
 	var scr = get_viewport().size
 	var cell_size=scr/6
 	var half_cell_size=cell_size/2
 	var mindim = min(half_cell_size.x, half_cell_size.y)
 	cells=[]
+	var last_dots={}
 	for i in range(len(grid)):
 		var pos = Vector2i(i%6,i/6)
 		var scr_pos=pos*cell_size
@@ -66,10 +76,19 @@ func _draw():
 		cells.append(cell)
 		if grid[i]>0:
 			draw_rect(cell,Color.BLANCHED_ALMOND, false, 3)
-		if grid[i]==2:						
-			draw_circle(scr_pos+half_cell_size, radius, Color.RED)
-		if grid[i]==3:
-			draw_circle(scr_pos+half_cell_size, radius, Color.BLUE)
+		if grid[i]>1:						
+			draw_circle(scr_pos+half_cell_size, radius, dot_colors[grid[i]])										
+			
+		if grid[i]>1:
+			# its a dot, check connection
+			var last=last_dots.get(grid[i])
+			if last == null:
+				last_dots[grid[i]]=pos
+			else:
+				if last.x == pos.x or last.y == pos.y:
+					# same line
+					print("same line ",grid[i]," ",pos," ",last)
+					draw_line(last*cell_size+half_cell_size, pos*cell_size+half_cell_size, dot_colors[grid[i]], 12)
 #	if selected!=-1:		
 #		var x = selected%6*width
 #		var y = selected/6*height
