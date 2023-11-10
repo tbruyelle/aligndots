@@ -1,17 +1,29 @@
 extends Node2D
 
 var grid: Array = [
-	1,1,1,2,0,0,
-	1,1,1,1,0,0,
-	1,1,1,1,1,1,
-	3,1,1,1,1,3,
-	1,1,1,2,1,1,
-	1,1,1,1,1,1,
+	E,E,E,R,V,V,
+	E,E,E,E,V,V,
+	E,E,E,E,E,E,
+	B,E,E,E,E,B,
+	E,E,E,R,E,E,
+	E,E,E,E,E,E,
 ]
 
+const CELL_VOID=0
+const CELL_EMPTY=1
+const CELL_RED_DOT=10
+const CELL_BLUE_DOT=11
+
+const B=CELL_BLUE_DOT
+const V=CELL_VOID
+const E=CELL_EMPTY
+const R=CELL_RED_DOT
+const CELL_DOT_START=CELL_RED_DOT
+
+
 var dot_colors={
-	2:Color.RED,
-	3:Color.BLUE,
+	CELL_RED_DOT:Color.RED,
+	CELL_BLUE_DOT:Color.BLUE,
 }
 
 var selected=-1
@@ -44,16 +56,16 @@ func _input(event):
 			queue_redraw()
 			return
 		if selected==-1:
-			if grid[i]>1:
+			if grid[i]>=CELL_DOT_START:
 				# There's a dot at this position, select it
 				selected=i
 				queue_redraw()
 				return
 		else:
-			if grid[i]==1 and selected!=i:
+			if grid[i]==CELL_EMPTY and selected!=i:
 				#swap position
 				grid[i]=grid[selected]
-				grid[selected]=1
+				grid[selected]=CELL_EMPTY
 				selected=i
 				queue_redraw()
 		
@@ -74,12 +86,10 @@ func _draw():
 			radius=radius*1.4
 		var cell=Rect2(scr_pos,cell_size)
 		cells.append(cell)
-		if grid[i]>0:
+		if grid[i]!=CELL_VOID:
 			draw_rect(cell,Color.BLANCHED_ALMOND, false, 3)
-		if grid[i]>1:						
+		if grid[i]>=CELL_DOT_START:						
 			draw_circle(scr_pos+half_cell_size, radius, dot_colors[grid[i]])										
-			
-		if grid[i]>1:
 			# its a dot, check connection
 			var last=last_dots.get(grid[i])
 			if last == null:
