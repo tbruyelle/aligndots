@@ -1,11 +1,11 @@
 extends Node2D
 
 var grid: Array = [
-	E,E,E,R,V,V,
+	E,E,X,R,V,V,
 	E,E,E,E,V,V,
-	E,E,E,E,E,E,
-	B,E,E,X,E,B,
-	E,E,E,R,E,E,
+	X,X,X,E,X,E,
+	B,X,E,X,X,B,
+	X,X,E,R,X,X,
 	E,E,E,E,E,E,
 ]
 
