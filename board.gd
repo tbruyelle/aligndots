@@ -4,22 +4,24 @@ var grid: Array = [
 	E,E,E,R,V,V,
 	E,E,E,E,V,V,
 	E,E,E,E,E,E,
-	B,E,E,E,E,B,
+	B,E,E,X,E,B,
 	E,E,E,R,E,E,
 	E,E,E,E,E,E,
 ]
 
 const CELL_VOID=0
 const CELL_EMPTY=1
+const CELL_BLOCK=2
 const CELL_RED_DOT=10
 const CELL_BLUE_DOT=11
 
-const B=CELL_BLUE_DOT
+
 const V=CELL_VOID
 const E=CELL_EMPTY
+const X=CELL_BLOCK
 const R=CELL_RED_DOT
+const B=CELL_BLUE_DOT
 const CELL_DOT_START=CELL_RED_DOT
-
 
 var dot_colors={
 	CELL_RED_DOT:Color.RED,
@@ -88,6 +90,8 @@ func _draw():
 		cells.append(cell)
 		if grid[i]!=CELL_VOID:
 			draw_rect(cell,Color.BLANCHED_ALMOND, false, 3)
+		if grid[i]==CELL_BLOCK:
+			draw_rect(cell,Color.SKY_BLUE, true, 0)
 		if grid[i]>=CELL_DOT_START:						
 			draw_circle(scr_pos+half_cell_size, radius, dot_colors[grid[i]])										
 			# its a dot, check connection
@@ -95,9 +99,34 @@ func _draw():
 			if last == null:
 				last_dots[grid[i]]=pos
 			else:
-				if last.x == pos.x or last.y == pos.y:
-					# same line
-					print("same line ",grid[i]," ",pos," ",last)
+				# Check if laser can pass between 2 dots
+				var laser=false
+				var checks=[]
+				if last.x == pos.x:
+					# check if line x contains a block
+					laser=true
+					var rangeStart=last.y*6+last.x
+					var rangeEnd=pos.y*6+pos.x
+					#print("RANGE X",rangeStart," ",rangeEnd)
+					checks=range(rangeStart,rangeEnd,6)
+					checks=checks.slice(1)							
+						
+				if last.y == pos.y:
+					# check if line y contains a block
+					laser=true
+					var rangeStart=last.y*6+last.x+1
+					var rangeEnd=pos.y*6+pos.x
+					#print("RANGE Y",rangeStart," ",rangeEnd)
+					checks=range(rangeStart,rangeEnd)	
+					
+				#print("checking ",checks)
+				for j in checks:					
+					if grid[j]==CELL_BLOCK:
+						#print("BREAK")
+						laser=false
+						break			
+					
+				if laser:
 					draw_line(last*cell_size+half_cell_size, pos*cell_size+half_cell_size, dot_colors[grid[i]], 12)
 #	if selected!=-1:		
 #		var x = selected%6*width
