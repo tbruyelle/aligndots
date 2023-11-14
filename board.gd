@@ -1,11 +1,11 @@
 extends Node2D
 
 var grid: Array = [
-	E,E,X,R,V,V,
-	E,E,E,E,V,V,
-	X,X,X,E,X,E,
-	B,X,E,X,X,B,
-	X,X,E,R,X,X,
+	E,E,E,B,V,V,
+	E,E,E,X,V,V,
+	X,X,E,X,X,E,
+	B,X,R,X,X,R,
+	E,X,E,E,X,E,
 	E,E,E,E,E,E,
 ]
 
@@ -46,30 +46,41 @@ func found_cell_idx(pt):
 			return i
 	return -1
 
+func get_cell_xy(i):
+	return Vector2i(i%6, i/6)
+
+func is_voisin_cell(i,j):
+	var iv = get_cell_xy(i)
+	var jv = get_cell_xy(j)
+	var vv = iv-jv
+	return vv.length() == 1	
 	
 func _input(event):	
 	if Input.is_action_just_released("press"):
 		selected=-1
 		queue_redraw()
+		return
+	if Input.is_action_just_pressed("press"):
+		var i = found_cell_idx(event.position)
+		if grid[i]>=CELL_DOT_START:
+			# There's a dot at this position, select it
+			selected=i
+			queue_redraw()
+		return
 	if Input.is_action_pressed("press"):
+		if selected==-1:
+			return
 		var i = found_cell_idx(event.position)
 		if i == -1:
 			selected=-1
 			queue_redraw()
 			return
-		if selected==-1:
-			if grid[i]>=CELL_DOT_START:
-				# There's a dot at this position, select it
-				selected=i
-				queue_redraw()
-				return
-		else:
-			if grid[i]==CELL_EMPTY and selected!=i:
-				#swap position
-				grid[i]=grid[selected]
-				grid[selected]=CELL_EMPTY
-				selected=i
-				queue_redraw()
+		if grid[i]==CELL_EMPTY and selected!=i && is_voisin_cell(i,selected):
+			#swap position
+			grid[i]=grid[selected]
+			grid[selected]=CELL_EMPTY
+			selected=i
+			queue_redraw()
 		
 	
 
@@ -81,7 +92,7 @@ func _draw():
 	cells=[]
 	var last_dots={}
 	for i in range(len(grid)):
-		var pos = Vector2i(i%6,i/6)
+		var pos = get_cell_xy(i)
 		var scr_pos=pos*cell_size
 		var radius=mindim/1.6
 		if selected==i:
@@ -91,7 +102,7 @@ func _draw():
 		if grid[i]!=CELL_VOID:
 			draw_rect(cell,Color.BLANCHED_ALMOND, false, 3)
 		if grid[i]==CELL_BLOCK:
-			draw_rect(cell,Color.SKY_BLUE, true, 0)
+			draw_rect(cell,Color.MEDIUM_PURPLE, true, 0)
 		if grid[i]>=CELL_DOT_START:						
 			draw_circle(scr_pos+half_cell_size, radius, dot_colors[grid[i]])										
 			# its a dot, check connection
