@@ -53,9 +53,9 @@ func is_voisin_cell(i,j):
 	var iv = get_cell_xy(i)
 	var jv = get_cell_xy(j)
 	var vv = iv-jv
-	return vv.length() == 1	
+	return vv.length() == 1
 	
-func _input(event):	
+func _input(event):
 	if Input.is_action_just_released("press"):
 		selected=-1
 		queue_redraw()
@@ -103,8 +103,8 @@ func _draw():
 			draw_rect(cell,Color.BLANCHED_ALMOND, false, 3)
 		if grid[i]==CELL_BLOCK:
 			draw_rect(cell,Color.MEDIUM_PURPLE, true, 0)
-		if grid[i]>=CELL_DOT_START:						
-			draw_circle(scr_pos+half_cell_size, radius, dot_colors[grid[i]])										
+		if grid[i]>=CELL_DOT_START:
+			draw_circle(scr_pos+half_cell_size, radius, dot_colors[grid[i]])
 			# its a dot, check connection
 			var last=last_dots.get(grid[i])
 			if last == null:
@@ -120,7 +120,7 @@ func _draw():
 					var rangeEnd=pos.y*6+pos.x
 					#print("RANGE X",rangeStart," ",rangeEnd)
 					checks=range(rangeStart,rangeEnd,6)
-					checks=checks.slice(1)							
+					checks=checks.slice(1)
 						
 				if last.y == pos.y:
 					# check if line y contains a block
@@ -128,14 +128,14 @@ func _draw():
 					var rangeStart=last.y*6+last.x+1
 					var rangeEnd=pos.y*6+pos.x
 					#print("RANGE Y",rangeStart," ",rangeEnd)
-					checks=range(rangeStart,rangeEnd)	
+					checks=range(rangeStart,rangeEnd)
 					
 				#print("checking ",checks)
-				for j in checks:					
+				for j in checks:
 					if grid[j]==CELL_BLOCK:
 						#print("BREAK")
 						laser=false
-						break			
+						break
 					
 				if laser:
 					draw_line(last*cell_size+half_cell_size, pos*cell_size+half_cell_size, dot_colors[grid[i]], 12)
